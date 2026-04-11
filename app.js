@@ -159,3 +159,58 @@ const countryList = {
     ZMK: "ZM",
     ZWD: "ZW",
 }
+
+const BASE_URL = "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/";
+let amount = document.querySelector("input");
+const msg = document.querySelector(".msg");
+
+const btn = document.querySelector("button");
+let fromcurr = document.querySelector(".from select");
+let tocurr = document.querySelector(".to select");
+
+fromcurr.addEventListener("change", (evt) => {
+    let newSrc = evt.target.value;
+    let newImg = fromcurr.parentElement.querySelector("img");
+    newImg.src = `https://flagsapi.com/${countryList[newSrc]}/flat/64.png`;
+})
+
+tocurr.addEventListener("change", (evt) => {
+    let newSrc = evt.target.value;
+    let newImg = tocurr.parentElement.querySelector("img");
+    newImg.src = `https://flagsapi.com/${countryList[newSrc]}/flat/64.png`;
+})
+
+btn.addEventListener("click", async (evt) => {
+    evt.preventDefault();
+
+    let amountVal = amount.value;
+    if (amountVal === "" || amountVal < 1) {
+        amountVal = 1;
+        amount.value = "1";
+    }
+
+    let url = `${BASE_URL}${fromcurr.value.toLowerCase()}.json`;
+    let finalAmount;
+    
+    try {
+        let response = await fetch(url);
+        let data = await response.json();
+        let rate = data[fromcurr.value.toLowerCase()][tocurr.value.toLowerCase()];
+        finalAmount = amountVal * rate;
+    } catch (error) {
+        console.log(error);
+    }
+
+    msg.innerText = `${amountVal} ${fromcurr.value} = ${finalAmount} ${tocurr.value}`;
+});
+
+let dropdowns = document.querySelectorAll(".dropdown select");
+
+for(let dropdown of dropdowns) {
+    for(let code in countryList) {
+        let newOption = document.createElement("option");
+        newOption.innerText = code;
+        newOption.value = code;
+        dropdown.append(newOption);
+        }
+}
